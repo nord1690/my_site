@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+	  <meta charset="utf-8">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	  <link href="https://ga-dev-tools.appspot.com/public/css/index.css" rel="stylesheet">
+	  <script language="JavaScript" type="text/javascript"
+        src="http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js">
+	   </script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.0.0/Chart.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+
+	  <style>
+		.Dashboard--full {
+			max-width: 100%;
+		}
+		.Dashboard {
+			background: #fff;
+			border: 1px solid #d4d2d0;
+			border-radius: 4px;
+			max-width: 52em;
+			padding: 1.5em;
+		}
+	 </style>
+
+	</head>
+	
+	<body>
+		
+		<div class="Dashboard Dashboard--full">
+
+				<header class="Titles">
+				  <h1 class="Titles-main">Sessions</h1>
+				  <p class="Titles-sub">Last 30 days</p>
+				</header>
+				<div class="Chartjs-figure" id="chart-1-container"></div>
+		</div>			
+				
+		
+		<script type="text/javascript">
+			
+			var token;
+			var pHeader = {"alg":"RS256","typ":"JWT"}
+			var sHeader = JSON.stringify(pHeader);
+			var pClaim = {};
+			pClaim.aud = "https://www.googleapis.com/oauth2/v3/token";
+			pClaim.scope = "https://www.googleapis.com/auth/analytics.readonly";
+			pClaim.iss = "test-842@beeline-ru.iam.gserviceaccount.com";
+			pClaim.exp = KJUR.jws.IntDate.get("now + 1hour");
+			pClaim.iat = KJUR.jws.IntDate.get("now");
+			var sClaim = JSON.stringify(pClaim);
+			//var key = "-----BEGIN PRIVATE KEY-----\nMIIC....\n-----END PRIVATE KEY-----\n";
+			var key = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDN6tOgf/YY2rTO\nVrgNTNFPCpDsnAw37Ci4Ra3MURt2r7jY9a8h+OLSssU1a1CLbnXpE3kmhrcByR+g\n08Ec6CUeBCM6JWcynUOQeOmBPZ7Fhg6K06NeK+dB1DisEmzymmJAu/poEs4YOatE\nmrKEzoF2K6+WQyevzE+Rxcto10Q92l82GiR1N3j8T38reLrQrFYaX2Bt7D8XaigU\naCYlMBWcESk+g5hriGg+4TKOo4bDyyLwhFxCr1Djsn4kTZP0PR7k/7yoy6TPaSP2\ngO94UHK2JVHCJKGOmATRY7RSNF8wRdEHUkwbrzg4VdCHZ4qOt3p/boGhS1MOrjwW\nuRt452PvAgMBAAECggEAPsQkAsnOcXAE6dpcGs2+BUpSt5SvUsJ8/QJcQim85dYV\nUai92+yZ8yCD5U8TS5T9gvCpHpm0oeo05lh1hkKqwbYAKOKqzK5MIHcCsh7ezRWa\nTC3Ln9JhGNs/9Q9evypY5aOG5f9Ja+/0KSLAZKPvqV4SlQpeSANOg8AXSxtG1VU1\ndNdMcuo1S4mmUzE3ma3wSX3uYAqcNqqsJu9ZV7gFWhXkKzbtQ6fbP9K4sxGjkL22\nSR/UB5RSLkL9TEnvjpRbNYdre4P7JNJ6P28X74XowlLXafCr5OcAIPDMocF6BQSw\n5xcWoyRSE2K+mj8BdVuG5f+QOhKUSuLoR7VSmVL0PQKBgQDmXo25BkE/QWYGz1nh\nJDXpnV0q9ld3tKNuXA18PhYaccVICyK6/6tqZmYA1+hyZk/8sifZsP8fYklMgFU+\nOYWs7opFot7xqxLKWrSeTkv+ugcrX8dVhQPX1ygFLgC/HZJOOwQWrCtSfKlsxDkb\nW+6uX+HK6VzZMCNrISgyisgVDQKBgQDk09KNgYW9GBjutyBIJa+mXKxmo4sc74Tj\n82ZG59IlOQ5lbNO5/9zgoaO6WcJ1lOv99ijtbbsqiHai2gBy48veYSyxyZQ3VpPC\nRtYYu0WLJSMyLux4DmLET62vm8PHQVHXi/5FmvIssZ9OQKIMmDwmGPGpVntfeIGW\nV3jGcwoV6wKBgQCt0YArsC2A9e5uivttJe5L08GdjfvXRYPe3DQMn6f70gYh4s0U\nvZ5wDM1AK6im0M3fg+kPlz4YRwe5YkdvSOW04tOP0WFYhVULO792hutOSrzoHD+C\nJngM3rnClsBXc4+V2W+vT77sYUVQ3QmdvBLunUf323aEJY9D4OO8pvxq7QKBgCQR\nZ0y6r7Pgin2GC+aTWh5k2R/Mg27qKg4sHWDrxWnslmJSRwU4WT5m/AGxiD80XAZJ\nuKXD+A56OAjvR8bUNRw2QO89EMmwMdYbiD+ZtRp7nhKY5tj9m3/J91yIttE/cIED\nJe8evzFgRfX1phVKIaD3qY/Be+zOd86UtwrAs0RFAoGAA80MyEgeapdLHj6RaCln\nqBeDkgl0fX5srH+i5/viRT2/5D6SCqROuKby+XE2exnmQXUIaqwtrbx1YpCHSF32\nThaUX3sZYS7NwS4VsddNvVWQ3z7wWi0GbzvN1C5AQQQprbs0bZ1RnA572kGVs/ay\nhpyqb1LUNMA0kcav6GvLbCk=\n-----END PRIVATE KEY-----\n";
+			var sJWS = KJUR.jws.JWS.sign(null, sHeader, sClaim, key);
+			var XHR = new XMLHttpRequest();
+			var urlEncodedData = "";
+			var urlEncodedDataPairs = [];
+			urlEncodedDataPairs.push(encodeURIComponent("grant_type") + '=' + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer"));
+			urlEncodedDataPairs.push(encodeURIComponent("assertion") + '=' + encodeURIComponent(sJWS));
+			urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+			// We define what will happen if the data are successfully sent
+			XHR.addEventListener('load', function(event) {
+				var response = JSON.parse(XHR.responseText);
+				token = response["access_token"]
+				console.log(token);
+			});
+			// We define what will happen in case of error
+			XHR.addEventListener('error', function(event) {
+				console.log('Oops! Something went wrong.');
+			});
+			XHR.open('POST', 'https://www.googleapis.com/oauth2/v3/token',false);
+			XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			XHR.send(urlEncodedData);
+			
+			function formatParams( params ){
+			  return "?" + Object
+					.keys(params)
+					.map(function(key){
+					  return key+"="+params[key]
+					})
+					.join("&")
+			}
+			
+			var endpoint = "https://www.googleapis.com/analytics/v3/data/ga"
+			var params = {
+			  'ids': 'ga:119994228', 
+			  'start-date': '30daysAgo',
+			  'end-date': 'yesterday',
+			  'metrics': 'ga:sessions',
+			  'dimensions': 'ga:date',
+			  'access_token': token
+			}
+			var url = endpoint + formatParams(params)
+			console.log(url);
+			
+			var xhr1 = new XMLHttpRequest();
+			
+			xhr1.addEventListener('load', function(event) {
+				var response = JSON.parse(xhr1.responseText);
+				console.log(response);
+				
+				var data1 = response.rows.map(function(row) { return row[1]; });
+				console.log(data1);
+				var labels = response.rows.map(function(row,i) { 
+					  if(i%6==0){
+						 return +row[0];
+					  }
+					  else{
+						 return "";
+					  }
+					  
+				  });
+				console.log(labels);
+			 
+				labels = labels.map(function(label,i) {
+					 if(i%6==0){
+						 return moment(label, 'YYYYMMDD').format('MMM DD');
+					  }
+					  else{
+						 return "";
+					  }
+					
+				});
+				console.log(labels);
+				
+				var data = {
+				labels : labels,
+				datasets : [
+				  {
+					label: 'Sessions',
+					fill: false,
+					borderColor : 'rgb(5, 141, 199)',
+					pointColor : 'rgb(5, 141, 199)',
+					pointBorderColor: 'rgb(5, 141, 199)',
+					pointBackgroundColor: 'rgb(5, 141, 199)',
+					data : data1
+				  }
+				]
+			  };
+			  
+			  new Chart(makeCanvas('chart-1-container'), {
+				type: "line",
+				data: data
+				}); 
+				
+			});
+			xhr1.open('GET', url,false);
+			xhr1.send();
+			function makeCanvas(id) {
+				var container = document.getElementById(id);
+				var canvas = document.createElement('canvas');
+				var ctx = canvas.getContext('2d');
+				container.innerHTML = '';
+				canvas.width = container.offsetWidth;
+				canvas.height = container.offsetHeight;
+				container.appendChild(canvas);
+				return ctx;
+      		}
+			
+			
+			  // Set some global Chart.js defaults.
+			  Chart.defaults.global.animationSteps = 60;
+			  Chart.defaults.global.animationEasing = 'easeInOutQuart';
+			  Chart.defaults.global.responsive = true;
+			  Chart.defaults.global.maintainAspectRatio = false;
+			  Chart.defaults.global.showTooltips = true;
+		
+		</script>
+		
+		
+			
+	</body>
+</html>
