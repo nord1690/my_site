@@ -124,7 +124,39 @@
           }
         };
       }
-    }  
-  }()
+    }
+
+    var real_url = document.location.href
+    var real_referrer = document.referrer
+    var cs = cookie_tools.get_url_vars( real_url )["utm_source"]
+    var cm = cookie_tools.get_url_vars( real_url )["utm_medium"] 
+    var cn = cookie_tools.get_url_vars( real_url )["utm_campaign"]
+    var date = new Date();
+    var month = date.getMonth()+1
+    var day = date.getDate()
+    var result = ""
+    var flag = true
+    var source_flag = true
+
+    if ( cs != undefined && flag != false ) 
+    {
+      if( cn != undefined)
+      {  
+        result = day + "|" + month + "|" + cs + "/" + cm + "/" + cn + ";"
+        source_flag = false
+        flag = false
+      }  
+      if( cm != undefined && source_flag != false  )
+      {  
+        result = day + "|" + month + "|" + cs + "/" + cm + ";"
+        flag = false
+      }    
+    } else {
+      result = false
+    }
+
+    console.log( result )
+
+  })()
 
 </script>
