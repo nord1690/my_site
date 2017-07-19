@@ -4,20 +4,18 @@ function removeTags () {
   var acc = ss.getRange(2, 5).getValue()
   var container = ss.getRange(2, 6).getValue()
   var work = ss.getRange(2, 7).getValue()
-  var mass = ss.getRange(2, 3, ss.getDataRange().getNumColumns() ).getValues()
-
-  for ( var i = 0; mass.length > i; i++ ) 
-  {
-    var arr = String( mass[i] )
-    
-    if ( arr != '' )
+  var numMass = ss.getDataRange().getLastRow()
+  
+    for ( var i = 0; numMass > i + 1; i++ ) 
     {
-      var tags = TagManager.Accounts.Containers.Workspaces.Tags.remove("accounts/" + String(acc) + "/containers/" + String(container) + "/workspaces/" + String(work) + "/tags/" + String(arr) );
-      ss.getRange(2, 1, i + 2 ).clear()
-      ss.getRange(2, 2, i + 2 ).clear()
-      ss.getRange(2, 3, i + 2 ).clear()
-    }  
-  }
+      var mass = ss.getRange(i + 2, 3).getValue() 
+      
+      var tags = TagManager.Accounts.Containers.Workspaces.Tags.remove("accounts/" + String(acc) + "/containers/" + String(container) + "/workspaces/" + String(work) + "/tags/" + String(mass) );
+    }
+  
+  ss.getRange(2, 1, numMass).clear()
+  ss.getRange(2, 2, numMass).clear()
+  ss.getRange(2, 3, numMass).clear()
 }
 
 function Tags() {
