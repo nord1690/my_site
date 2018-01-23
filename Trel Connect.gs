@@ -1,59 +1,29 @@
-function retrieveCardsByListsFromTrello(lists) { //
+function retrieveCardsByListsFromTrello( lists ) {
+  
   var cards = retrieveAllCardsFromTrello();
-  return groupCardsByLists(cards, lists);
+  return groupCardsByLists( cards, lists );
 }
 
-function groupCardsByLists(cards, lists) {
-  var cardsByLists = [];
-  for (var i = 0; i < lists.length; i++) {
-    cardsByLists[lists[i].id]=[];
-  }
-  for (var i = 0; i < cards.length; i++) {
-    if(!cardsByLists[cards[i].idList]){
-      cardsByLists[cards[i].idList]=[];
+function groupListsAndCards() {
+
+  var trelloUrlCards = "https://trello.com/1/boards/" + trelloBoardId + "/cards?filter=visible&key=" + trelloAppKey + "&token=" + trelloAuthToken;
+  var trelloUrlLists = "https://trello.com/1/boards/" + trelloBoardId + "/lists?filter=open&key=" + trelloAppKey + "&token=" + trelloAuthToken;
+  var responseCards = UrlFetchApp.fetch(trelloUrlCards);
+  var responseLists = UrlFetchApp.fetch(trelloUrlLists);
+  var cards = JSON.parse(responseCards.getContentText());
+  var lists = JSON.parse(responseLists.getContentText());
+  var all = []
+  
+  for( var i = 0; i < cards.length; i++ ) {
+    for( var j = 0; j < lists.length; j++ ) {
+      if( cards[i].idList == lists[j].id ) {
+        all.push({ 
+          card: cards[i],
+          list: lists[j] 
+        })
+      }
     }
-    cardsByLists[cards[i].idList].push(cards[i]);
-  }
-  return cardsByLists;
+  } 
   
-}
-
-function retrieveAllCardsFromTrello() {
-  if (DEBUG) Logger.log('Retrieving all cards from board %s', trelloBoardId);
-  var trelloUrl = "https://trello.com/1/boards/" + trelloBoardId + "/cards?filter=visible&key=" + trelloAppKey + "&token=" + trelloAuthToken;
-  var response = UrlFetchApp.fetch(trelloUrl);
-
-  var cards = JSON.parse(response.getContentText());
-  if (DEBUG) Logger.log('Retrieved a total of %s cards from board', cards.length.toString());
-  
-  return cards;
-}
-
-function retrieveOpenListsFromTrello() {
-  if (DEBUG) Logger.log('Retrieving lists from iteration board');
-  
-  var trelloUrl = "https://trello.com/1/boards/" + trelloBoardId + "/lists?filter=open&key=" + trelloAppKey + "&token=" + trelloAuthToken;
-  var response = UrlFetchApp.fetch(trelloUrl);
-  
-  var lists = JSON.parse(response.getContentText());
-  
-  if (DEBUG) {  
-    for (var i = 0; i < lists.length; i++) { 
-      Logger.log('Retrieved list %s with name "%s"', i.toString(), lists[i].name);
-    }
-  }
-  return lists;
-}
-
-function retrieveLabelsFromTrello() {
-  if (DEBUG) Logger.log('Retrieving labels from iteration board');
-    
-  var trelloUrl = "https://trello.com/1/boards/" + trelloBoardId + "/labelNames?key=" + trelloAppKey + "&token=" + trelloAuthToken;
-  var response = UrlFetchApp.fetch(trelloUrl);
-  
-  var labels = JSON.parse(response.getContentText());
-  
-  if (DEBUG) Logger.log("Retrieved %s labels from board", Object.keys(labels).length.toString());
-  
-  return labels;
+  return all
 }
